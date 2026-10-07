@@ -1,54 +1,38 @@
-from flask import Flask, render_template_string, request, redirect, url_for
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
+BKASH_NUMBER = "01727246581"
 
-orders = []
-
-HTML_TEMPLATE = """
+HTML = """
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Fire Top-up BD</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; }
-        .container { max-width: 400px; margin: auto; background: #1e293b; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        h2 { text-align: center; color: #38bdf8; }
-        .payment-notice { background: #334155; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #f43f5e; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #334155; border: 1px solid #475569; color: #fff; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background: #2563eb; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #1d4ed8; }
-        .order-box { background: #334155; padding: 10px; margin-top: 10px; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>🔥 Free Fire Top-up 🔥</h2>
-        
-        <div class="payment-notice">
-            <p style="margin: 0; font-size: 14px;"><b>পেমেন্ট নিয়ম:</b> প্রথমে নিচের নাম্বারে টাকা Send Money করুন এবং ট্রানজাকশন আইডি দিন।</p>
-            <p style="margin: 5px 0 0 0; color: #38bdf8; font-weight: bold;">বিকাশ (Personal): 01727246581</p>
-        </div>
+<html>
+<head><title>Ahad TopUp</title></head>
+<body style="background:#0f172a; color:white; text-align:center; padding:50px; font-family:sans-serif;">
+    <h2>🔥 Ahad TopUp 🔥</h2>
+    <p>বিকাশ পার্সোনাল: <b>{{ bkash }}</b></p>
+    {% if not done %}
+    <form method="POST">
+        <p>UID: <input type="text" name="uid" required></p>
+        <p>প্যাকেজ: <select name="pkg"><option>২৫ ডায়মন্ড - ২৫ টাকা</option><option>১১৫ ডায়মন্ড - ৮৫ টাকা</option></select></p>
+        <p>বিকাশ নম্বর: <input type="text" name="sender" required></p>
+        <p>TrxID: <input type="text" name="trx" required></p>
+        <button type="submit">কনফার্ম করুন</button>
+    </form>
+    {% else %}
+        <h3 style="color:#4ade80;">অর্ডার সফলভাবে জমা হয়েছে!</h3>
+        <a href="/">আরেকটি অর্ডার করুন</a>
+    {% endif %}
+</body>
+</html>
+"""
 
-        <form method="POST" action="/order">
-            <label>আপনার জিমেইল:</label>
-            <input type="email" name="email" placeholder="example@gmail.com" required>
-            
-            <label>ফ্রি ফায়ার UID:</label>
-            <input type="text" name="uid" placeholder="যেমন: 123456789" required>
-            
-            <label>প্যাকেজ সিলেক্ট করুন:</label>
-            <select name="package">
-                <option value="115 Diamonds - 85 BDT">১১৫ ডায়মন্ড - ৮৫ টাকা</option>
-                <option value="240 Diamonds - 170 BDT">২৪০ ডায়মন্ড - ১৭০ টাকা</option>
-                <option value="610 Diamonds - 450 BDT">৬১০ ডায়মন্ড - ৪৫০ টাকা</option>
-            </select>
-            
-            <label>বিকাশ ট্রানজাকশন আইডি (TrxID):</label>
-            <input type="text" name="trxid" placeholder="যেমন: 9N7K..." required>
-            
-            <button type="submit">অর্ডার কনফার্ম করুন</button>
-        </form>
-        
-        <hr style="border-color: #475569; margin: 20px 0
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    done = False
+    if request.method == 'POST':
+        print(f"Order: UID={request.form.get('uid')}, Trx={request.form.get('trx')}")
+        done = True
+    return render_template_string(HTML, bkash=BKASH_NUMBER, done=done)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
